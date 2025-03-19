@@ -105,8 +105,8 @@ except Exception as e:
     st.error(f"Error adding documents to database: {str(e)}")
     st.info("Try re-configuring the database or using smaller documents.")
                 
-                # Clean up temp file
-                os.remove(temp_file_path)
+    # Clean up temp file
+        os.remove(temp_file_path)
                 
                 st.success(f"Added {uploaded_file.name} to knowledge base!")
         else:
