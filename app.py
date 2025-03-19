@@ -78,18 +78,32 @@ with st.sidebar:
                 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
                 texts = text_splitter.split_documents(documents)
                 
-                # Add to vector store
-                vectordb = get_vectordb()
-                
-                # Add metadata to identify the document
-                for i, text in enumerate(texts):
-                    text.metadata["source"] = uploaded_file.name
-                    text.metadata["chunk_id"] = i
-                
-                vectordb.add_documents(texts)
-                
-                # Add to processed files
-                st.session_state.processed_files.append(uploaded_file.name)
+              # Add to vector store
+try:
+    vectordb = get_vectordb()
+    
+    # Add metadata to identify the document
+    for i, text in enumerate(texts):
+        text.metadata["source"] = uploaded_file.name
+        text.metadata["chunk_id"] = i
+    
+    # Process in smaller batches to avoid issues
+    batch_size = 5
+    for i in range(0, len(texts), batch_size):
+        batch = texts[i:i+batch_size]
+        try:
+            vectordb.add_documents(batch)
+            st.sidebar.write(f"Processed batch {i//batch_size + 1}/{(len(texts)-1)//batch_size + 1}")
+        except Exception as e:
+            st.sidebar.error(f"Error in batch {i//batch_size + 1}: {str(e)}")
+            continue
+    
+    # Add to processed files
+    st.session_state.processed_files.append(uploaded_file.name)
+    st.success(f"Added {uploaded_file.name} to knowledge base!")
+except Exception as e:
+    st.error(f"Error adding documents to database: {str(e)}")
+    st.info("Try re-configuring the database or using smaller documents.")
                 
                 # Clean up temp file
                 os.remove(temp_file_path)
