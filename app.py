@@ -90,7 +90,7 @@ with st.sidebar:
                 text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
                 texts = text_splitter.split_documents(documents)
                 
-# Add to vector store
+              # Add to vector store
 try:
     vectordb = get_vectordb()
     
@@ -112,14 +112,17 @@ try:
     
     # Add to processed files
     st.session_state.processed_files.append(uploaded_file.name)
-    
-    # Clean up temp file
-    os.remove(temp_file_path)
-    
     st.success(f"Added {uploaded_file.name} to knowledge base!")
 except Exception as e:
     st.error(f"Error adding documents to database: {str(e)}")
     st.info("Try re-configuring the database or using smaller documents.")
+                
+    # Clean up temp file
+        os.remove(temp_file_path)
+                
+                st.success(f"Added {uploaded_file.name} to knowledge base!")
+        else:
+            st.info(f"{uploaded_file.name} has already been processed.")
     
     st.header("Knowledge Base")
     if st.session_state.processed_files:
