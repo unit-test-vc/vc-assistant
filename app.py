@@ -69,6 +69,8 @@ st.title("VC Deal Analysis Assistant")
 
 texts = []
 
+uploaded_file = None
+
 # Sidebar for uploading and settings
 with st.sidebar:
     st.header("Upload Documents")
@@ -101,46 +103,46 @@ with st.sidebar:
                 texts = text_splitter.split_documents(documents)
 
 # Add to vector store
-try:
-    vectordb = get_vectordb()
+if uploaded_file:
+    try:
+        vectordb = get_vectordb()
 
-    # Add metadata to identify the document
-    for i, text in enumerate(texts):
-        text.metadata["source"] = uploaded_file.name
-        text.metadata["chunk_id"] = i
+        # Add metadata to identify the document
+        for i, text in enumerate(texts):
+            text.metadata["source"] = uploaded_file.name
+            text.metadata["chunk_id"] = i
 
-    # Process in smaller batches to avoid issues
-    batch_size = 5
-    for i in range(0, len(texts), batch_size):
-        batch = texts[i : i + batch_size]
-        try:
-            vectordb.add_documents(batch)
-            st.sidebar.write(
-                f"Processed batch {i // batch_size + 1}/{(len(texts) - 1) // batch_size + 1}"
-            )
-        except Exception as e:
-            st.sidebar.error(f"Error in batch {i // batch_size + 1}: {str(e)}")
-            continue
+        # Process in smaller batches to avoid issues
+        batch_size = 5
+        for i in range(0, len(texts), batch_size):
+            batch = texts[i : i + batch_size]
+            try:
+                vectordb.add_documents(batch)
+                st.sidebar.write(
+                    f"Processed batch {i // batch_size + 1}/{(len(texts) - 1) // batch_size + 1}"
+                )
+            except Exception as e:
+                st.sidebar.error(f"Error in batch {i // batch_size + 1}: {str(e)}")
+                continue
 
-    # Add to processed files
-    st.session_state.processed_files.append(uploaded_file.name)
+        # Add to processed files
+        st.session_state.processed_files.append(uploaded_file.name)
 
-    # Clean up temp file
-    if uploaded_file:
+        # Clean up temp file
         os.remove(temp_file_path)
 
-    st.success(f"Added {uploaded_file.name} to knowledge base!")
-except Exception as e:
-    st.error(f"Error adding documents to database: {str(e)}")
-    st.info("Try re-configuring the database or using smaller documents.")
+        st.success(f"Added {uploaded_file.name} to knowledge base!")
+    except Exception as e:
+        st.error(f"Error adding documents to database: {str(e)}")
+        st.info("Try re-configuring the database or using smaller documents.")
 
-    st.header("Knowledge Base")
-    if st.session_state.processed_files:
-        st.write("Processed documents:")
-        for file in st.session_state.processed_files:
-            st.write(f"- {file}")
-    else:
-        st.write("No documents processed yet.")
+        st.header("Knowledge Base")
+        if st.session_state.processed_files:
+            st.write("Processed documents:")
+            for file in st.session_state.processed_files:
+                st.write(f"- {file}")
+        else:
+            st.write("No documents processed yet.")
 
 # Main area for querying
 st.header("Ask About Your Deals")
