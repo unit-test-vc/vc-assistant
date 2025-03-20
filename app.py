@@ -12,6 +12,10 @@ except RuntimeError:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
 
+import torch
+
+torch.classes.__path__ = []
+
 from langchain_community.vectorstores import SupabaseVectorStore
 from langchain_huggingface import HuggingFaceEmbeddings  # Updated import
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader
