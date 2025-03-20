@@ -36,6 +36,10 @@ supabase_url = st.secrets["SUPABASE_URL"]
 supabase_key = st.secrets["SUPABASE_KEY"]
 hf_api_key = st.secrets["HF_API_KEY"]
 
+assert supabase_url, "error parsing SUPABASE_URL"
+assert supabase_key, "error parsing SUPABASE_KEY"
+assert hf_api_key, "error parsing HF_API_KEY"
+
 # Set up Supabase client
 supabase = create_client(supabase_url, supabase_key)
 
