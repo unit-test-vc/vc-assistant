@@ -1,7 +1,19 @@
 import streamlit as st
 import os
+import asyncio
+
+# Disable file watcher to avoid PyTorch conflicts
+os.environ['STREAMLIT_SERVER_WATCH_CHANGES'] = 'false'
+
+# Setup asyncio loop properly
+try:
+    loop = asyncio.get_event_loop()
+except RuntimeError:
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+
 from langchain_community.vectorstores import SupabaseVectorStore
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings  # Updated import
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, CSVLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.llms import HuggingFaceHub
